@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api/clients"; // Asegúrate de esta URL
+const API_URL = import.meta.env.VITE_API_URL + "/clients"; // Usa la URL base desde el .env
 
 // Obtener todos los clientes
 export const getClients = async () => {
