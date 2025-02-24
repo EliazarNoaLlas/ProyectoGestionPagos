@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="https://smart-cities.odoo.com/web/static/img/favicon.ico">
+    <script src="scripts.js" defer></script>
+</head>
+<body class="o_web_client o_home_menu_background">
+    <header class="o_navbar">
+        <nav class="o_main_navbar d-print-none" data-command-category="disabled">
+            <a href="#  " class="o_menu_toggle border-0 o_hidden" title="Menú de inicio" aria-label="Menú de inicio" data-hotkey="h">
+                <!-- Icono SVG -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="o_menu_toggle_icon pe-none" width="14px" height="14px" viewBox="0 0 14 14">
+                    <g fill="currentColor">
+                        <rect width="3" height="3" x="0" y="0"></rect>
+                        <rect width="3" height="3" x="5" y="0"></rect>
+                        <rect width="3" height="3" x="10" y="0"></rect>
+                        <rect width="3" height="3" x="0" y="5"></rect>
+                        <rect width="3" height="3" x="5" y="5"></rect>
+                        <rect width="3" height="3" x="10" y="5"></rect>
+                        <rect width="3" height="3" x="0" y="10"></rect>
+                        <rect width="3" height="3" x="5" y="10"></rect>
+                        <rect width="3" height="3" x="10" y="10"></rect>
+                    </g>
+                </svg>
+            </a>
+            <div class="o_navbar_breadcrumbs d-contents"></div>
+            <div class="o_menu_systray d-flex flex-shrink-0 ms-auto" role="menu">
+                <!-- Notificaciones -->
+                <div class="dropdown">
+                    <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa fa-bell"></i>
+                        <span class="badge bg-danger">3</span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li><a class="dropdown-item" href="#">Notificación 1</a></li>
+                        <li><a class="dropdown-item" href="#">Notificación 2</a></li>
+                        <li><a class="dropdown-item" href="#">Notificación 3</a></li>
+                    </ul>
+                </div>
+
+                <!-- Mensajes -->
+                <div class="o-mail-DiscussSystray-class">
+                    <button aria-expanded="false" class="o-dropdown dropdown-toggle dropdown">
+                        <i class="fa fa-lg fa-comments" role="img" aria-label="Messages"></i>
+                        <span class="o-mail-MessagingMenu-counter badge rounded-pill">3</span>
+                    </button>
+                </div>
+
+                <!-- Actividades -->
+                <button aria-expanded="false" class="o-dropdown dropdown-toggle dropdown">
+                    <i class="fa fa-lg fa-clock-o" role="img" aria-label="Activities"></i>
+                </button>
+
+                <!-- Cambiar de empresa -->
+                <div class="o_switch_company_menu d-none d-md-block">
+                    <button data-hotkey="shift+u" disabled="" title="Smart Cities" aria-expanded="false" class="o-dropdown dropdown-toggle dropdown">
+                        <i class="fa fa-building d-lg-none"></i>
+                        <span class="oe_topbar_name d-none d-lg-block text-truncate">Smart Cities</span>
+                    </button>
+                </div>
+
+                <!-- Menú de usuario -->
+                <div class="o_user_menu d-none d-md-block pe-0">
+                    <button class="py-1 py-lg-0 o-dropdown dropdown-toggle dropdown" aria-expanded="false">
+                        <img class="o_avatar o_user_avatar rounded" alt="Usuario" src="./Inicio_files/Eliazar Noa(1).svg">
+                        <small class="oe_topbar_name d-none ms-2 text-start smaller lh-1 text-truncate" style="max-width: 200px">
+                            Eliazar Noa
+                            <mark class="d-block font-monospace text-truncate">
+                                <i class="fa fa-database oi-small me-1"></i>smart-cities
+                            </mark>
+                        </small>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="o_action_manager">
+        <div class="o_home_menu h-100 overflow-auto">
+            <div class="container">
+                <input type="text" class="o_search_hidden visually-hidden w-auto" data-allow-hotkeys="true" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="true">
+                <div role="alert" class="database_expiration_panel alert o-hidden-ios alert-warning">
+                    <span class="oe_instance_register_main_span">
+                        <span class="oe_instance_expires">Tu prueba gratis expirará en <b>14 días</b>. </span>
+                        <a href="https://smart-cities.odoo.com/odoo#" class="oe_instance_register_show">Registra tu suscripción</a> o <a href="https://smart-cities.odoo.com/odoo#"><span class="oe_instance_register">compra una suscripción.</span></a>
+                    </span>
+                </div>
+                <div role="listbox" class="o_apps row user-select-none mt-5 mx-0">
+                    <!-- Aplicaciones -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="o-main-components-container">
+        <div class="o-mail-ChatHub">
+            <div class="o-mail-ChatHub-bubbles position-fixed end-0 d-flex flex-column align-content-start justify-content-end align-items-center bottom-0">
+                <!-- Burbujas de chat -->
+            </div>
+        </div>
+        <div class="o-overlay-container">
+            <div class="o-overlay-item"></div>
+        </div>
+        <div class="editor_notification_manager o_notification_manager o_upload_progress_toast"></div>
+        <div class="o_notification_manager"></div>
+    </div>
+</body>
+</html>

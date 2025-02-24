@@ -1,0 +1,36 @@
+### Send POST request with json body
+POST http://localhost:3000/api/clients
+Content-Type: application/json
+
+{
+  "name": "Juan Pérez",
+  "service": "Internet Premium",
+  "amount": 599.99,
+  "dueDate": "2025-03-15"
+}
+
+### Send POST register
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "Eliazar",
+  "email": "infoeliasar13@gmail.com",
+  "password":"123456789"
+}
+
+
+### Send GET request with json body
+
+GET http://localhost:3000/api/clients
+
+
+### 1.5 Registrar Pago (PATCH)
+PATCH http://localhost:3000/api/clients/67ba9cb1768abd5f47a17a9f/payment
+
+
+
+### Get Cliene by Id
+GET http://localhost:3000/api/clients/67ba9cb1768abd5f47a17a9f/payment
+
+http://localhost:3000/api/clients/67ba9cb1768abd5f47a17a9f/payment
