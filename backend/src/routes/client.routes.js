@@ -1,13 +1,13 @@
 // routes/clientRoutes.js
 import { Router } from "express";
 import {
-  getAllClients,
-  getClientById,
+  getClients,
+  getClient,
+  createNewClient,
+  modifyClient,
+  removeClient,
   searchClients,
-  createClient,
-  updateClient,
-  registerPayment,
-  deleteClient
+  registerPayment
 } from "../controllers/client.controller.js";
 
 import { validateSchema } from "../middlewares/validator.middleware.js";
@@ -16,15 +16,16 @@ import { clientSchema } from "../schemas/client.schema.js"; // Esquema adecuado 
 const router = Router();
 
 // Rutas para clientes
-router.get('/clients', getAllClients);
+router.get('/clients', getClients);
 router.get('/clients/search', searchClients);
-router.get('/clients/:id', getClientById);
+router.get('/clients/:id', getClient);
 
 // Validación para crear y actualizar clientes
-router.post('/clients', validateSchema(clientSchema), createClient);
-router.put('/clients/:id', validateSchema(clientSchema), updateClient);
+router.post('/clients', validateSchema(clientSchema), createNewClient);
+router.put('/clients/:id', validateSchema(clientSchema), modifyClient);
+router.delete("/clients/:id", removeClient);
+
 
 router.patch('/clients/:id/payment', registerPayment);
-router.delete('/clients/:id', deleteClient);
 
 export default router;

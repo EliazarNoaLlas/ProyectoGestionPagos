@@ -1,13 +1,26 @@
-import mongoose from 'mongoose';
+// config/db.js
+import pg from "pg";
+import {
+  DB_HOST,
+  DB_PORT,
+  DB_DATABASE,
+  DB_USER,
+  DB_PASSWORD,
+} from "./config.js";
 
-const connectDB = async () => {
-    try {
-        const conn = await mongoose.connect(process.env.MONGO_URI);
-        console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-    } catch (error) {
-        console.error(`❌ Error: ${error.message}`);
-        process.exit(1);
-    }
-};
+const pool = new pg.Pool({
+  host: DB_HOST,
+  database: DB_DATABASE,
+  user: DB_USER,
+  password: DB_PASSWORD,
+  port: DB_PORT,
+});
 
-export default connectDB;
+pool.connect()
+  .then(() => console.log("✅ Conectado a PostgreSQL"))
+  .catch((err) => {
+    console.error("❌ Error al conectar a PostgreSQL:", err.message);
+    process.exit(1);
+  });
+
+export default pool;

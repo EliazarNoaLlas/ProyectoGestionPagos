@@ -26,11 +26,7 @@ GET http://localhost:3000/api/clients
 
 
 ### 1.5 Registrar Pago (PATCH)
-PATCH http://localhost:3000/api/clients/67ba9cb1768abd5f47a17a9f/payment
-
-
+PATCH http://localhost:3000/api/clients/1/payment
 
 ### Get Cliene by Id
-GET http://localhost:3000/api/clients/67ba9cb1768abd5f47a17a9f/payment
-
-http://localhost:3000/api/clients/67ba9cb1768abd5f47a17a9f/payment
+GET http://localhost:3000/api/clients/1

@@ -1,117 +1,96 @@
-// controllers/clientController.js
-import Client from '../models/client.model.js';
+// controllers/client.controller.js
+import {
+  getAllClients,
+  getClientById,
+  createClient,
+  updateClient,
+  registerClientPayment,
+  deleteClient
+} from "../models/client.model.js";
 
 // Obtener todos los clientes
-export const getAllClients = async (req, res) => {
+export const getClients = async (req, res) => {
   try {
-    const clients = await Client.find().sort({ createdAt: -1 });
+    const clients = await getAllClients();
     res.json(clients);
   } catch (error) {
-    res.status(500).json({ message: 'Error al obtener los clientes', error: error.message });
+    res.status(500).json({ message: "Error al obtener los clientes", error: error.message });
   }
 };
 
 // Obtener un cliente por ID
-export const getClientById = async (req, res) => {
+export const getClient = async (req, res) => {
   try {
-    const client = await Client.findById(req.params.id);
-    if (!client) {
-      return res.status(404).json({ message: 'Cliente no encontrado' });
-    }
+    const client = await getClientById(req.params.id);
+    if (!client) return res.status(404).json({ message: "Cliente no encontrado" });
     res.json(client);
   } catch (error) {
-    res.status(500).json({ message: 'Error al obtener el cliente', error: error.message });
-  }
-};
-
-// Buscar clientes por nombre
-export const searchClients = async (req, res) => {
-  try {
-    const { name } = req.query;
-    const clients = await Client.find({
-      name: { $regex: name, $options: 'i' }
-    });
-    res.json(clients);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al buscar clientes', error: error.message });
+    res.status(500).json({ message: "Error al obtener el cliente", error: error.message });
   }
 };
 
 // Crear un nuevo cliente
-export const createClient = async (req, res) => {
+export const createNewClient = async (req, res) => {
   try {
-    const { name, service, amount, dueDate } = req.body;
-    const client = new Client({
-      name,
-      service,
-      amount,
-      dueDate
-    });
-    
-    const savedClient = await client.save();
-    res.status(201).json(savedClient);
+    const client = await createClient(req.body);
+    res.status(201).json(client);
   } catch (error) {
-    res.status(500).json({ message: 'Error al crear el cliente', error: error.message });
+    res.status(500).json({ message: "Error al crear el cliente", error: error.message });
   }
 };
 
 // Actualizar un cliente
-export const updateClient = async (req, res) => {
+export const modifyClient = async (req, res) => {
   try {
-    const { name, service, amount, dueDate, status } = req.body;
-    
-    const updatedClient = await Client.findByIdAndUpdate(
-      req.params.id,
-      {
-        name,
-        service,
-        amount,
-        dueDate,
-        status
-      },
-      { new: true }
-    );
-
-    if (!updatedClient) {
-      return res.status(404).json({ message: 'Cliente no encontrado' });
-    }
-
-    res.json(updatedClient);
+    const client = await updateClient(req.params.id, req.body);
+    if (!client) return res.status(404).json({ message: "Cliente no encontrado" });
+    res.json(client);
   } catch (error) {
-    res.status(500).json({ message: 'Error al actualizar el cliente', error: error.message });
+    res.status(500).json({ message: "Error al actualizar el cliente", error: error.message });
+  }
+};
+
+// Eliminar un cliente
+export const removeClient = async (req, res) => {
+  try {
+    const success = await deleteClient(req.params.id);
+    if (!success) return res.status(404).json({ message: "Cliente no encontrado" });
+    res.json({ message: "Cliente eliminado correctamente" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al eliminar el cliente", error: error.message });
+  }
+};
+
+
+// Buscar clientes por nombre
+export const searchClients = async (req, res) => {
+  const { name } = req.query;
+
+  if (!name) {
+    return res.status(400).json({ message: "El nombre es requerido para la búsqueda" });
+  }
+
+  try {
+    const clients = await findClientsByName(name);
+    res.json(clients);
+  } catch (error) {
+    res.status(500).json({ message: "Error al buscar clientes", error: error.message });
   }
 };
 
 // Registrar pago
 export const registerPayment = async (req, res) => {
+  const { id } = req.params;
+
   try {
-    const updatedClient = await Client.findByIdAndUpdate(
-      req.params.id,
-      { status: 'Pagado' },
-      { new: true }
-    );
+    const updatedClient = await registerClientPayment(id);
 
     if (!updatedClient) {
-      return res.status(404).json({ message: 'Cliente no encontrado' });
+      return res.status(404).json({ message: "Cliente no encontrado" });
     }
 
-    res.json(updatedClient);
+    res.json({ message: "Pago registrado exitosamente", client: updatedClient });
   } catch (error) {
-    res.status(500).json({ message: 'Error al registrar el pago', error: error.message });
-  }
-};
-
-// Eliminar un cliente
-export const deleteClient = async (req, res) => {
-  try {
-    const deletedClient = await Client.findByIdAndDelete(req.params.id);
-    
-    if (!deletedClient) {
-      return res.status(404).json({ message: 'Cliente no encontrado' });
-    }
-
-    res.json({ message: 'Cliente eliminado correctamente' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error al eliminar el cliente', error: error.message });
+    res.status(500).json({ message: "Error al registrar el pago", error: error.message });
   }
 };
