@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL + "/clients"; // Usa la URL base desde el .env
+const API_URL = import.meta.env.VITE_API_URL + "/api/clients"; // Usa la URL base desde el .env
 
 // Obtener todos los clientes
 export const getClients = async () => {

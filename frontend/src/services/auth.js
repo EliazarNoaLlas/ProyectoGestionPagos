@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL + "/auth"; // Usa la URL base desde el .env
+const API_URL = import.meta.env.VITE_API_URL + "/api/auth"; // Usa la URL base desde el .env
 
 
 // registrarse

@@ -1,4 +1,7 @@
 ### Send POST request with json body
+
+
+
 POST http://localhost:3000/api/clients
 Content-Type: application/json
 
@@ -8,6 +11,12 @@ Content-Type: application/json
   "amount": 599.99,
   "dueDate": "2025-03-15"
 }
+
+
+### Get all clients
+GET http://localhost:3000/api/clients
+Content-Type: application/json
+
 
 ### Send POST register
 POST http://localhost:3000/api/auth/register
@@ -22,7 +31,7 @@ Content-Type: application/json
 
 ### Send GET request with json body
 
-GET http://localhost:3000/api/clients
+GET https://proyectogestionpagos.onrender.com/api/clients
 
 
 ### 1.5 Registrar Pago (PATCH)
