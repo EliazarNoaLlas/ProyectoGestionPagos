@@ -8,7 +8,7 @@
       <jdbc-url>jdbc:postgresql://dpg-cuv0gufnoe9s73fjdmq0-a.oregon-postgres.render.com:5432/gestionpagosdb</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="postgres@localhost [2]" uuid="d54e8a95-aa01-4e0c-b0dd-37e6a1a108c4">
+    <data-source source="LOCAL" name="gestionpagos" uuid="d54e8a95-aa01-4e0c-b0dd-37e6a1a108c4">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>

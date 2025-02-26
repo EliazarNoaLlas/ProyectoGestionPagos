@@ -47,7 +47,7 @@ export const deleteClient = async (id) => {
 export const findClientsByName = async (name) => {
   const query = `
     SELECT * FROM clients
-    WHERE LOWER(name) LIKE LOWER($1)
+    WHERE unaccent(LOWER(name)) ILIKE unaccent(LOWER($1))
     ORDER BY created_at DESC;
   `;
   const values = [`%${name}%`];

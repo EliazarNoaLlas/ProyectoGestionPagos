@@ -5,7 +5,8 @@ import {
   createClient,
   updateClient,
   registerClientPayment,
-  deleteClient
+  deleteClient,
+  findClientsByName
 } from "../models/client.model.js";
 
 // Obtener todos los clientes

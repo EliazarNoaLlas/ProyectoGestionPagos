@@ -1,7 +1,20 @@
+### Get all clients
+GET http://localhost:3000/api/clients
+Content-Type: application/json
+
+### Get Cliene by Id
+GET http://localhost:3000/api/clients/1
+Content-Type: application/json
+
+
+### Search Cliene by Name
+GET http://localhost:3000/api/clients/search?name=perez
+Content-Type: application/json
+
+
+
+
 ### Send POST request with json body
-
-
-
 POST http://localhost:3000/api/clients
 Content-Type: application/json
 
@@ -12,10 +25,17 @@ Content-Type: application/json
   "dueDate": "2025-03-15"
 }
 
-
-### Get all clients
-GET http://localhost:3000/api/clients
+### Update Client
+PUT http://localhost:3000/api/clients/1
 Content-Type: application/json
+
+{
+  "name": "Juan Pérez",
+  "service": "Internet Premium",
+  "amount": 599.99,
+  "dueDate": "2025-03-01T05:00:00.000Z",
+  "status": "Pagado"
+}
 
 
 ### Send POST register
@@ -37,5 +57,4 @@ GET https://proyectogestionpagos.onrender.com/api/clients
 ### 1.5 Registrar Pago (PATCH)
 PATCH http://localhost:3000/api/clients/1/payment
 
-### Get Cliene by Id
-GET http://localhost:3000/api/clients/1
+
