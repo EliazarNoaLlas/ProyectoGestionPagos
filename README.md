@@ -108,23 +108,17 @@ Antes de comenzar, asegúrate de tener permisos de administrador en tu sistema o
 2. Crea la base de datos:
 
    ```sql
-
-   CREATEDATABASE sgps_db;
-
+   CREATE DATABASE sgps_db;
    ```
 3. Verifica la creación:
 
    ```sql
-
    \l
-
    ```
 4. Salir de psql:
 
    ```sql
-
    \q
-
    ```
 
 ### 2. Crear las tablas
@@ -136,127 +130,96 @@ Antes de comenzar, asegúrate de tener permisos de administrador en tu sistema o
 ```sql
 
 -- Tabla de clientes
-
-CREATETABLEclients (
-
-    client_id SERIALPRIMARY KEY,
-
-    typeVARCHAR(10) NOT NULLCHECK (typeIN ('persona', 'empresa')),
-
-    nameVARCHAR(200) NOT NULL,
-
-    phone VARCHAR(20),
-
-    email VARCHAR(100) UNIQUE,
-
-    identification_number VARCHAR(50) UNIQUE,
-
-    identification_type VARCHAR(20),
-
-    created_at TIMESTAMPDEFAULT CURRENT_TIMESTAMP,
-
-    updated_at TIMESTAMPDEFAULT CURRENT_TIMESTAMP,
-
-    is_active BOOLEANDEFAULT TRUE,
-
-    addressTEXT,
-
-    city VARCHAR(50),
-
-    country VARCHAR(50),
-
-    postal_code VARCHAR(15)
-
+create table clients
+(
+    client_id             serial
+        primary key,
+    type                  varchar(10)  not null
+        constraint clients_type_check
+            check ((type)::text = ANY ((ARRAY ['persona'::character varying, 'empresa'::character varying])::text[])),
+    name                  varchar(200) not null,
+    phone                 varchar(20),
+    email                 varchar(100)
+        unique,
+    identification_number varchar(50)
+        unique,
+    identification_type   varchar(20),
+    created_at            timestamp default CURRENT_TIMESTAMP,
+    updated_at            timestamp default CURRENT_TIMESTAMP,
+    is_active             boolean   default true,
+    address               text,
+    city                  varchar(50),
+    country               varchar(50),
+    postal_code           varchar(15)
 );
 
+alter table clients
+    owner to postgres;
 
--- Tabla de servicios
-
-CREATETABLEservices (
-
-    service_id SERIALPRIMARY KEY,
-
-    nameVARCHAR(100) NOT NULL,
-
-    descriptionTEXT,
-
-    price NUMERIC(15,2) NOT NULL
-
+create table services
+(
+    service_id  serial
+        primary key,
+    name        varchar(100)   not null,
+    description text,
+    price       numeric(15, 2) not null
 );
 
+alter table services
+    owner to postgres;
 
--- Tabla de servicios de clientes
-
-CREATETABLEclient_services (
-
-    client_service_id SERIALPRIMARY KEY,
-
-    client_id INTEGERNOT NULLREFERENCES clients(client_id) ON DELETE CASCADE,
-
-    service_id INTEGERNOT NULLREFERENCES services(service_id) ON DELETE CASCADE,
-
-    statusVARCHAR(20) DEFAULT'activo'CHECK (statusIN ('activo', 'inactivo', 'cancelado')),
-
-    created_at TIMESTAMPDEFAULT CURRENT_TIMESTAMP,
-
-    amount_due NUMERIC(15,2) NOT NULL,
-
-    due_date DATENOT NULL,
-
-    payment_status VARCHAR(20) NOT NULLDEFAULT'pendiente'CHECK (payment_status IN ('pendiente', 'pagado')),
-
-    updated_at TIMESTAMPDEFAULT CURRENT_TIMESTAMP
-
+create table client_services
+(
+    client_service_id serial
+        primary key,
+    client_id         integer                                            not null
+        references clients
+            on delete cascade,
+    service_id        integer                                            not null
+        references services
+            on delete cascade,
+    status            varchar(20) default 'activo'::character varying
+        constraint client_services_status_check
+            check ((status)::text = ANY
+                   ((ARRAY ['activo'::character varying, 'inactivo'::character varying, 'cancelado'::character varying])::text[])),
+    created_at        timestamp   default CURRENT_TIMESTAMP,
+    amount_due        numeric(15, 2)                                     not null,
+    due_date          date                                               not null,
+    payment_status    varchar(20) default 'pendiente'::character varying not null
+        constraint client_services_payment_status_check
+            check ((payment_status)::text = ANY
+                   ((ARRAY ['pendiente'::character varying, 'pagado'::character varying])::text[])),
+    updated_at        timestamp   default CURRENT_TIMESTAMP
 );
 
+alter table client_services
+    owner to postgres;
 
--- Tabla de pagos
-
-CREATETABLEpayments (
-
-    payment_id SERIALPRIMARY KEY,
-
-    amount NUMERIC(15,2) NOT NULL,
-
-    payment_date DATENOT NULL,
-
-    payment_method VARCHAR(50) NOT NULL,
-
-    reference_number VARCHAR(100),
-
-    notes TEXT,
-
-    created_at TIMESTAMPDEFAULT CURRENT_TIMESTAMP,
-
-    statusVARCHAR(20) NOT NULLDEFAULT'pendiente'CHECK (statusIN ('borrador', 'en proceso', 'pagado')),
-
-    payment_type VARCHAR(50) NOT NULLCHECK (payment_type IN ('efectivo', 'transferencia', 'tarjeta', 'cheque', 'otro')),
-
-    client_service_id INTEGERNOT NULLREFERENCES client_services(client_service_id) ON DELETE CASCADE
-
+create table payments
+(
+    payment_id        serial
+        primary key,
+    amount            numeric(15, 2)                                     not null,
+    payment_date      date                                               not null,
+    payment_method    varchar(50)                                        not null,
+    reference_number  varchar(100),
+    notes             text,
+    created_at        timestamp   default CURRENT_TIMESTAMP,
+    status            varchar(20) default 'pendiente'::character varying not null
+        constraint payments_status_check
+            check ((status)::text = ANY
+                   ((ARRAY ['borrador'::character varying, 'en proceso'::character varying, 'pagado'::character varying])::text[])),
+    payment_type      varchar(50)                                        not null
+        constraint payments_payment_type_check
+            check ((payment_type)::text = ANY
+                   ((ARRAY ['efectivo'::character varying, 'transferencia'::character varying, 'tarjeta'::character varying, 'cheque'::character varying, 'otro'::character varying])::text[])),
+    client_service_id integer                                            not null
+        references client_services
+            on delete cascade
 );
 
-
--- Tabla de usuarios (para autenticación)
-
-CREATETABLEusers (
-
-    user_id SERIALPRIMARY KEY,
-
-    username VARCHAR(50) NOT NULLUNIQUE,
-
-    email VARCHAR(100) NOT NULLUNIQUE,
-
-    passwordVARCHAR(255) NOT NULL,
-
-    roleVARCHAR(20) NOT NULLCHECK (roleIN ('admin', 'vendedor')),
-
-    created_at TIMESTAMPDEFAULT CURRENT_TIMESTAMP,
-
-    is_active BOOLEANDEFAULT TRUE
-
-);
-
+alter table payments
+    owner to postgres;
 ```
 
 ## Configuración del backend
