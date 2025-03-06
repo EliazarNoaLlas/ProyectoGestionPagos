@@ -1,0 +1,79 @@
+###
+# Client Endpoints Testing
+# Author: Victor
+# Last Modified: 2025-03-03
+###
+
+@baseUrl = http://localhost:3000/api
+@clientsEndpoint = {{baseUrl}}/clients
+
+### Get all clients
+GET {{clientsEndpoint}}
+
+### Search clients by name
+GET {{clientsEndpoint}}/search?name=pe
+Content-Type: application/json
+
+### Get client by ID
+GET {{clientsEndpoint}}/2
+
+### Create new client
+POST {{clientsEndpoint}}
+Content-Type: application/json
+
+{
+  "type": "empresa",
+  "name": "Soluciones Financieras SAC",
+  "phone": "+5112345678",
+  "email": "contacto@solucionesfinancieras.com",
+  "identification_number": "RUC 20123456789",
+  "identification_type": "RUC",
+  "address": "Av. Javier Prado Este 789",
+  "city": "Lima",
+  "country": "Perú",
+  "postal_code": "15036"
+}
+
+### Update existing client
+PUT {{clientsEndpoint}}/1
+Content-Type: application/json
+
+{
+  "type": "persona",
+  "name": "María García López",
+  "phone": "+34612345678",
+  "email": "maria.garcia@example.com",
+  "identification_number": "48762391K",
+  "identification_type": "DNI",
+  "address": "Avenida Central 45",
+  "city": "Madrid",
+  "country": "España",
+  "postal_code": "28001",
+  "is_active": true
+}
+
+### Delete client
+DELETE {{clientsEndpoint}}/1
+
+### Create business client example
+POST {{clientsEndpoint}}
+Content-Type: application/json
+
+{
+  "type": "empresa",
+  "name": "Tecnología Avanzada S.L.",
+  "phone": "+34911234567",
+  "email": "contacto@tecnoavanzada.es",
+  "identification_number": "B87654321",
+  "identification_type": "CIF",
+  "address": "Polígono Industrial Norte, Nave 12",
+  "city": "Barcelona",
+  "country": "España",
+  "postal_code": "08001"
+}
+
+### Search clients with partial name
+GET {{clientsEndpoint}}/search?name=tecno
+
+### Exercise partial search with accents
+GET {{clientsEndpoint}}/search?name=perez

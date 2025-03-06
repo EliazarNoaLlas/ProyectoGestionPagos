@@ -8,8 +8,8 @@ Content-Type: application/json
 
 
 ### Search Cliene by Name
-GET http://localhost:3000/api/clients/search?name=perez
-Content-Type: application/json
+GET http://localhost:3000/api/client/search?name=juan
+// Correcto: nombre como parámetro
 
 
 

@@ -1,0 +1,43 @@
+### Base URL Configuration
+@baseUrl = http://localhost:3000/api
+@contentType = application/json
+
+### Get All Services
+GET {{baseUrl}}/services
+Content-Type: {{contentType}}
+
+### Get Service by ID
+GET {{baseUrl}}/services/2
+Content-Type: {{contentType}}
+
+### Create a New Service
+POST {{baseUrl}}/services
+Content-Type: {{contentType}}
+
+{
+    "name": "Consultoría en Transformación Digital",
+    "description": "Asesoría estratégica para la digitalización de empresas",
+    "price": 2000.00
+}
+
+### Update an Existing Service
+PUT {{baseUrl}}/services/1
+Content-Type: {{contentType}}
+
+{
+    "name": "Desarrollo Web Avanzado",
+    "description": "Servicio de desarrollo web con funcionalidades adicionales",
+    "price": 2000.00
+}
+
+### Delete a Service
+DELETE {{baseUrl}}/services/1
+Content-Type: {{contentType}}
+
+### Search Services by Term
+GET {{baseUrl}}/services/search/term?term=Consultoria
+Content-Type: {{contentType}}
+
+### Filter Services by Price Range
+GET {{baseUrl}}/services/filter/price?min=500&max=2000
+Content-Type: {{contentType}}

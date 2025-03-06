@@ -1,413 +1,292 @@
-import React, { useState } from 'react';
+/*
+ * File: PaymentPage.js
+ * Author: Desarrollador de Interfaz de Gestión de Pagos
+ * Copyright: 2025, Embedding Minds
+ * License: MIT
+ * Purpose: Interfaz de gestión de pagos con modos de vista de cuadrícula y lista
+ * Last Modified: 2025-03-05
+ */
 
-const PaymentManagement = () => {
-    const [paymentState, setPaymentState] = useState('draft'); // draft, process, paid
-    const [formData, setFormData] = useState({
-        paymentId: 'PAY00003',
-        paymentType: 'send',
-        client: '',
-        amount: '0.00',
-        date: '2025-02-25',
-        memo: '',
-        journal: 'bank',
-        paymentMethod: 'manual',
-        bankAccount: 'main'
-    });
+import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { Search, Plus, Grid, List, FileText, DollarSign, Calendar, CreditCard } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar.jsx";
+import FilterMenu from "../components/filterMenu.jsx";
 
-    // Función para cambiar el estado del pago
-    const handleStateChange = (state) => {
-        setPaymentState(state);
+// Servicio API para obtener y buscar pagos
+const getPayments = async () => {
+    try {
+        const response = await fetch('http://localhost:3000/api/payments/status/en proceso');
+        if (!response.ok) throw new Error('Error al cargar pagos');
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching payments:", error);
+        return [];
+    }
+};
+
+const searchPayments = async (searchTerm) => {
+    try {
+        const response = await fetch(`http://localhost:3000/api/payments?search=${encodeURIComponent(searchTerm)}`);
+        if (!response.ok) throw new Error('Error al buscar pagos');
+        return await response.json();
+    } catch (error) {
+        console.error("Error searching payments:", error);
+        return [];
+    }
+};
+
+// Componente principal de la interfaz de pagos
+const PaymentPage = () => {
+    // Estados para gestionar la interfaz
+    const [viewMode, setViewMode] = useState('kanban');
+    const [payments, setPayments] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const navigate = useNavigate();
+
+    const handleClick = (paymentId) => {
+        navigate(`/payments/${paymentId}`);
     };
 
-    // Función para manejar cambios en el formulario
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
-    };
+    // Efecto para cargar pagos al iniciar la interfaz
+    useEffect(() => {
+        const fetchPayments = async () => {
+            try {
+                const data = await getPayments();
+                if (!Array.isArray(data)) throw new Error("La respuesta no es una lista de pagos");
+                setPayments(data);
+            } catch (error) {
+                console.error("Error al cargar pagos:", error.message);
+            }
+        };
+        fetchPayments();
+    }, []);
 
-    return (
-        <div className="bg-gray-50 min-h-screen p-6">
-            <div className="max-w-6xl mx-auto">
-                <header className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-medium text-purple-700">Gestión de Pagos</h1>
-                </header>
+    // Manejar búsqueda en tiempo real
+    useEffect(() => {
+        const fetchSearchResults = async () => {
+            if (searchTerm.trim() === "") {
+                const data = await getPayments(); // Si el campo está vacío, recarga todos los pagos
+                setPayments(data);
+            } else {
+                const data = await searchPayments(searchTerm);
+                setPayments(data);
+            }
+        };
 
-                {/* Barra de control */}
-                <div className="bg-white rounded-lg shadow-sm p-4 mb-6 flex items-center">
-                    <button className="bg-purple-700 text-white px-4 py-2 rounded flex items-center space-x-2 hover:bg-purple-800 transition-colors">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-                        </svg>
-                        <span>Nuevo</span>
-                    </button>
+        const delaySearch = setTimeout(fetchSearchResults, 500); // Retraso de 500ms para evitar consultas innecesarias
+        return () => clearTimeout(delaySearch);
+    }, [searchTerm]);
 
-                    <div className="relative ml-3">
-                        <button className="border border-gray-200 bg-white text-purple-700 px-4 py-2 rounded flex items-center space-x-2 hover:bg-gray-50 transition-colors">
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                            </svg>
-                            <span>Acciones</span>
-                        </button>
-                        {/* Dropdown contenido (omitido por simplicidad) */}
+    // Componente de tarjeta de pago
+    const PaymentCard = ({ payment }) => {
+        // Función para obtener el color del estado
+        const getStatusColor = (status) => {
+            switch (status) {
+                case 'pagado': return 'bg-green-100 text-green-800';
+                case 'borrador': return 'bg-gray-100 text-gray-800';
+                case 'en proceso': return 'bg-yellow-100 text-yellow-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        };
+
+        // Función para obtener el ícono del método de pago
+        const getPaymentMethodIcon = (method) => {
+            switch (method) {
+                case 'tarjeta': return <CreditCard className="w-8 h-8 text-blue-500" />;
+                case 'efectivo': return <DollarSign className="w-8 h-8 text-green-500" />;
+                case 'transferencia': return <FileText className="w-8 h-8 text-purple-500" />;
+                case 'cheque': return <FileText className="w-8 h-8 text-orange-500" />;
+                default: return <DollarSign className="w-8 h-8 text-gray-500" />;
+            }
+        };
+
+        return (
+            <div
+                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-4 mb-4 cursor-pointer"
+                onClick={() => handleClick(payment.payment_id)}
+            >
+                {/* Encabezado de la tarjeta */}
+                <div className="flex items-start mb-3">
+                    {/* Ícono de pago */}
+                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                        {getPaymentMethodIcon(payment.payment_method)}
                     </div>
-
-                    <div className="flex-1"></div>
-
-                    {/* Barra de proceso con flechas */}
-                    <div className="flex items-center">
-                        <div
-                            onClick={() => handleStateChange('draft')}
-                            className={`flex items-center px-4 py-2 ${paymentState === 'draft' ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-700'} cursor-pointer`}
-                        >
-                            <span>Borrador</span>
-                        </div>
-                        <div className="w-0 h-0 border-t-8 border-b-8 border-l-8 border-t-transparent border-b-transparent border-l-gray-200"></div>
-
-                        <div
-                            onClick={() => paymentState === 'draft' ? handleStateChange('process') : null}
-                            className={`flex items-center px-4 py-2 ${paymentState === 'process' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'} ${paymentState === 'draft' ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'}`}
-                        >
-                            <span>En proceso</span>
-                        </div>
-                        <div className="w-0 h-0 border-t-8 border-b-8 border-l-8 border-t-transparent border-b-transparent border-l-gray-200"></div>
-
-                        <div
-                            onClick={() => paymentState === 'process' ? handleStateChange('paid') : null}
-                            className={`flex items-center px-4 py-2 ${paymentState === 'paid' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'} ${paymentState === 'process' ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'}`}
-                        >
-                            <span>Pagado</span>
+                    {/* Información principal del pago */}
+                    <div className="flex-1">
+                        <h3 className="font-semibold text-lg text-gray-800">Pago #{payment.payment_id}</h3>
+                        <div className={`inline-block px-2 py-1 rounded-full text-xs ${getStatusColor(payment.status)}`}>
+                            {payment.status}
                         </div>
                     </div>
                 </div>
 
-                {/* Contenido principal basado en el estado */}
-                {paymentState === 'draft' && (
-                    <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
-                        <div className="bg-purple-600 text-white p-4">
-                            <h2 className="text-lg font-medium">Información de Pago</h2>
-                        </div>
-                        <div className="p-6">
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de pago</label>
-                                        <select
-                                            name="paymentType"
-                                            value={formData.paymentType}
-                                            onChange={handleInputChange}
-                                            className="w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                        >
-                                            <option value="send">Enviar</option>
-                                            <option value="receive">Recibir</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
-                                        <input
-                                            type="text"
-                                            name="client"
-                                            value={formData.client}
-                                            onChange={handleInputChange}
-                                            className="w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                            placeholder="Seleccione un cliente..."
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Importe</label>
-                                        <input
-                                            type="text"
-                                            name="amount"
-                                            value={formData.amount}
-                                            onChange={handleInputChange}
-                                            className="w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                            placeholder="0.00"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
-                                        <input
-                                            type="date"
-                                            name="date"
-                                            value={formData.date}
-                                            onChange={handleInputChange}
-                                            className="w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Memo</label>
-                                        <textarea
-                                            name="memo"
-                                            value={formData.memo}
-                                            onChange={handleInputChange}
-                                            className="w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                            rows="3"
-                                            placeholder="Agregar una descripción..."
-                                        ></textarea>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Diario</label>
-                                        <select
-                                            name="journal"
-                                            value={formData.journal}
-                                            onChange={handleInputChange}
-                                            className="w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                        >
-                                            <option value="bank">Diario de banco</option>
-                                            <option value="cash">Diario de efectivo</option>
-                                            <option value="sales">Diario de ventas</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Método de pago</label>
-                                        <select
-                                            name="paymentMethod"
-                                            value={formData.paymentMethod}
-                                            onChange={handleInputChange}
-                                            className="w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                        >
-                                            <option value="manual">Manual Payment</option>
-                                            <option value="transfer">Transferencia bancaria</option>
-                                            <option value="credit">Tarjeta de crédito</option>
-                                            <option value="cash">Efectivo</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Cuenta bancaria de la empresa</label>
-                                        <select
-                                            name="bankAccount"
-                                            value={formData.bankAccount}
-                                            onChange={handleInputChange}
-                                            className="w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                        >
-                                            <option value="main">Cuenta principal</option>
-                                            <option value="secondary">Cuenta secundaria</option>
-                                        </select>
-                                    </div>
-
-                                    <div className="pt-6">
-                                        <button
-                                            onClick={() => handleStateChange('process')}
-                                            className="bg-purple-700 text-white px-6 py-2 rounded hover:bg-purple-800 transition-colors"
-                                        >
-                                            Confirmar
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {paymentState === 'process' && (
-                    <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
-                        <div className="bg-purple-600 text-white p-4">
-                            <h2 className="text-lg font-medium">Información de Pago</h2>
-                        </div>
-                        <div className="p-6">
-                            <div className="border border-gray-200 rounded-lg p-6 mb-4">
-                                <h3 className="text-xl font-medium text-purple-700 mb-4">{formData.paymentId}</h3>
-
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div>
-                                        <p className="text-sm text-gray-500 mb-1">Tipo de pago</p>
-                                        <p className="font-medium">{formData.paymentType === 'send' ? 'Enviar' : 'Recibir'}</p>
-                                    </div>
-
-                                    <div>
-                                        <p className="text-sm text-gray-500 mb-1">Cliente</p>
-                                        <p className="font-medium">{formData.client || 'Sin especificar'}</p>
-                                    </div>
-
-                                    <div>
-                                        <p className="text-sm text-gray-500 mb-1">Importe</p>
-                                        <p className="font-medium">S/ {formData.amount}</p>
-                                    </div>
-
-                                    <div>
-                                        <p className="text-sm text-gray-500 mb-1">Fecha</p>
-                                        <p className="font-medium">
-                                            {new Date(formData.date).toLocaleDateString('es-ES', {
-                                                day: '2-digit',
-                                                month: '2-digit',
-                                                year: 'numeric'
-                                            })}
-                                        </p>
-                                    </div>
-
-                                    <div>
-                                        <p className="text-sm text-gray-500 mb-1">Memo</p>
-                                        <p className="font-medium">{formData.memo || 'Sin descripción'}</p>
-                                    </div>
-
-                                    <div>
-                                        <p className="text-sm text-gray-500 mb-1">Diario</p>
-                                        <p className="font-medium">
-                                            {formData.journal === 'bank' ? 'Banco' :
-                                                formData.journal === 'cash' ? 'Efectivo' : 'Ventas'}
-                                        </p>
-                                    </div>
-
-                                    <div>
-                                        <p className="text-sm text-gray-500 mb-1">Método de pago</p>
-                                        <p className="font-medium">
-                                            {formData.paymentMethod === 'manual' ? 'Manual Payment' :
-                                                formData.paymentMethod === 'transfer' ? 'Transferencia bancaria' :
-                                                    formData.paymentMethod === 'credit' ? 'Tarjeta de crédito' : 'Efectivo'}
-                                        </p>
-                                    </div>
-
-                                    <div>
-                                        <p className="text-sm text-gray-500 mb-1">Cuenta bancaria de la empresa</p>
-                                        <p className="font-medium">
-                                            {formData.bankAccount === 'main' ? 'Cuenta principal' : 'Cuenta secundaria'}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex justify-end">
-                                <button
-                                    onClick={() => handleStateChange('draft')}
-                                    className="border border-gray-300 text-gray-700 px-4 py-2 rounded mr-2 hover:bg-gray-50 transition-colors"
-                                >
-                                    Regresar
-                                </button>
-                                <button
-                                    onClick={() => handleStateChange('paid')}
-                                    className="bg-purple-700 text-white px-6 py-2 rounded hover:bg-purple-800 transition-colors"
-                                >
-                                    Validar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {paymentState === 'paid' && (
-                    <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
-                        <div className="bg-purple-600 text-white p-4">
-                            <h2 className="text-lg font-medium">Información de Pago</h2>
-                        </div>
-                        <div className="p-6">
-                            <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6 text-center">
-                                <svg className="w-16 h-16 mx-auto text-green-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <h3 className="text-xl font-medium text-green-800 mb-2">¡Pago completado con éxito!</h3>
-                                <p className="text-green-600">El pago ha sido procesado y registrado correctamente.</p>
-                            </div>
-
-                            <div className="border border-gray-200 rounded-lg p-6 mb-6">
-                                <h3 className="text-xl font-medium text-purple-700 mb-4">{formData.paymentId}</h3>
-
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div>
-                                        <p className="text-sm text-gray-500 mb-1">Tipo de pago</p>
-                                        <p className="font-medium">{formData.paymentType === 'send' ? 'Enviar' : 'Recibir'}</p>
-                                    </div>
-
-                                    <div>
-                                        <p className="text-sm text-gray-500 mb-1">Cliente</p>
-                                        <p className="font-medium">{formData.client || 'Sin especificar'}</p>
-                                    </div>
-
-                                    <div>
-                                        <p className="text-sm text-gray-500 mb-1">Importe</p>
-                                        <p className="font-medium">S/ {formData.amount}</p>
-                                    </div>
-
-                                    <div>
-                                        <p className="text-sm text-gray-500 mb-1">Fecha</p>
-                                        <p className="font-medium">
-                                            {new Date(formData.date).toLocaleDateString('es-ES', {
-                                                day: '2-digit',
-                                                month: '2-digit',
-                                                year: 'numeric'
-                                            })}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex justify-between">
-                                <button
-                                    onClick={() => handleStateChange('process')}
-                                    className="border border-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-50 transition-colors"
-                                >
-                                    Regresar
-                                </button>
-                                <button className="bg-purple-700 text-white px-6 py-2 rounded hover:bg-purple-800 transition-colors">
-                                    Generar recibo
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Chatter */}
-                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <div className="bg-purple-600 text-white p-4">
-                        <h2 className="text-lg font-medium">Comunicaciones</h2>
+                {/* Detalles adicionales del pago */}
+                <div className="space-y-2 mb-3">
+                    {/* Monto */}
+                    <div className="flex items-center text-sm text-gray-600">
+                        <DollarSign className="w-4 h-4 mr-2"/>
+                        {new Intl.NumberFormat('es-MX', {
+                            style: 'currency',
+                            currency: 'MXN'
+                        }).format(payment.amount)}
                     </div>
 
-                    <div className="flex border-b border-gray-200 p-3">
-                        <button className="px-3 py-2 text-gray-600 flex items-center space-x-1 hover:bg-gray-100 rounded transition-colors">
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clipRule="evenodd" />
-                            </svg>
-                            <span>Enviar mensaje</span>
-                        </button>
+                    {/* Método de pago */}
+                    <div className="flex items-center text-sm text-gray-600">
+                        <CreditCard className="w-4 h-4 mr-2"/>
+                        Método: {payment.payment_method}
+                    </div>
 
-                        <button className="px-3 py-2 text-gray-600 flex items-center space-x-1 hover:bg-gray-100 rounded transition-colors ml-2">
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                            </svg>
-                            <span>Registrar una nota</span>
-                        </button>
+                    {/* Fecha de pago */}
+                    <div className="flex items-center text-sm text-gray-600">
+                        <Calendar className="w-4 h-4 mr-2"/>
+                        Fecha: {new Date(payment.payment_date).toLocaleDateString()}
+                    </div>
 
-                        <button className="px-3 py-2 text-gray-600 flex items-center space-x-1 hover:bg-gray-100 rounded transition-colors ml-2">
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                            </svg>
-                            <span>Actividades</span>
-                        </button>
+                    {/* Referencia */}
+                    <div className="flex items-center text-sm text-gray-600">
+                        <FileText className="w-4 h-4 mr-2"/>
+                        Referencia: {payment.reference_number || "N/A"}
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
-                        <button className="px-3 py-2 text-gray-600 flex items-center space-x-1 hover:bg-gray-100 rounded transition-colors ml-2">
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a3 3 0 00-3-3 3 3 0 00-3 3v4a5 5 0 0010 0V7a3 3 0 00-3-3h-4z" clipRule="evenodd" />
-                            </svg>
-                            <span>Adjuntar archivos</span>
-                        </button>
+    // Validación de propiedades para PaymentCard
+    PaymentCard.propTypes = {
+        payment: PropTypes.shape({
+            payment_id: PropTypes.number.isRequired,
+            amount: PropTypes.string.isRequired,
+            payment_date: PropTypes.string.isRequired,
+            payment_method: PropTypes.string.isRequired,
+            reference_number: PropTypes.string,
+            status: PropTypes.string.isRequired,
+            payment_type: PropTypes.string.isRequired,
+            client_service_id: PropTypes.number.isRequired,
+            notes: PropTypes.string,
+            created_at: PropTypes.string.isRequired,
+        }).isRequired,
+    };
 
-                        <div className="flex-1"></div>
+    return (
+        <div className="min-h-screen bg-gray-100">
+            {/* Navbar */}
+            <Navbar/>
 
-                        <button className="px-3 py-2 text-gray-600 flex items-center space-x-1 hover:bg-gray-100 rounded transition-colors">
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-                            </svg>
-                            <span>Seguidores (0)</span>
+            {/* Contenido principal de la interfaz */}
+            <div className="min-h-screen bg-gray-50">
+                {/* Header */}
+                <div className="bg-white shadow-sm px-6 py-4">
+                    <div className="flex justify-between items-center">
+                        <h1 className="text-xl font-semibold text-gray-800">Pagos</h1>
+                        <button
+                            onClick={() => navigate("/create-payment")}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-md flex items-center hover:bg-blue-700 transition-colors"
+                        >
+                            <Plus className="w-4 h-4 mr-2"/>
+                            Nuevo Pago
                         </button>
                     </div>
+                </div>
 
-                    <div className="p-6 text-center text-gray-500 italic">
-                        No hay mensajes ni actividades registradas.
+                {/* Search Bar y Filtros */}
+                <div className="px-6 py-4">
+                    <div className="flex space-x-2">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"/>
+                            <input
+                                type="text"
+                                placeholder="Buscar pagos..."
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                        </div>
+                        {/* Menú de filtros */}
+                        <FilterMenu/>
+                        <div className="flex border border-gray-300 rounded-md overflow-hidden">
+                            <button
+                                className={`px-3 py-2 flex items-center ${viewMode === 'kanban' ? 'bg-blue-100 text-blue-700' : 'bg-white text-gray-700'}`}
+                                onClick={() => setViewMode('kanban')}
+                            >
+                                <Grid className="w-4 h-4"/>
+                            </button>
+                            <button
+                                className={`px-3 py-2 flex items-center ${viewMode === 'list' ? 'bg-blue-100 text-blue-700' : 'bg-white text-gray-700'}`}
+                                onClick={() => setViewMode('list')}
+                            >
+                                <List className="w-4 h-4"/>
+                            </button>
+                        </div>
                     </div>
+                </div>
+
+                {/* Contenido principal de pagos */}
+                <div className="px-6 py-4">
+                    {/* Vista de cuadrícula (Kanban) */}
+                    {viewMode === 'kanban' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {payments.map(payment => (
+                                <PaymentCard key={payment.payment_id} payment={payment}/>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Vista de lista */}
+                    {viewMode === 'list' && (
+                        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                            <table className="w-full">
+                                <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Monto</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Método</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Referencia</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID Servicio</th>
+                                </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">
+                                {payments.map(payment => (
+                                    <tr
+                                        key={payment.payment_id}
+                                        className="hover:bg-blue-100 cursor-pointer transition duration-200"
+                                        onClick={() => handleClick(payment.payment_id)}
+                                    >
+                                        <td className="px-6 py-4 text-sm text-gray-800">{payment.payment_id}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-600">
+                                            {new Intl.NumberFormat('es-MX', {
+                                                style: 'currency',
+                                                currency: 'MXN'
+                                            }).format(payment.amount)}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-600">{payment.payment_method}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-600">
+                                            {new Date(payment.payment_date).toLocaleDateString()}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-600">{payment.reference_number || "N/A"}</td>
+                                        <td className="px-6 py-4 text-sm">
+                                            <span className={`inline-block px-2 py-1 rounded-full text-xs ${
+                                                payment.status === 'pagado' ? 'bg-green-100 text-green-800' :
+                                                    payment.status === 'borrador' ? 'bg-gray-100 text-gray-800' :
+                                                        'bg-yellow-100 text-yellow-800'}`}>
+                                                {payment.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-600">{payment.client_service_id}</td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
     );
 };
 
-export default PaymentManagement;
+export default PaymentPage;

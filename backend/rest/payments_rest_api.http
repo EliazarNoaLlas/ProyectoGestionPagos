@@ -1,0 +1,75 @@
+### Base URL Configuration
+@baseUrl = http://localhost:3000/api
+@contentType = application/json
+
+### Get All Payments
+GET {{baseUrl}}/payments
+Content-Type: {{contentType}}
+
+### Get Payment by ID
+GET {{baseUrl}}/payments/18
+Content-Type: {{contentType}}
+
+### Create a New Payment
+POST {{baseUrl}}/payments
+Content-Type: {{contentType}}
+
+{
+    "payment_method": "transferencia",
+    "reference_number": "REF-12345",
+    "notes": "Pago de servicio mensual",
+    "client_service_id": 3,
+    "amount": 1000.00
+}
+
+### Update an Existing Payment
+PUT {{baseUrl}}/payments/1
+Content-Type: {{contentType}}
+
+{
+    "amount": 600.00,
+    "payment_date": "2024-03-04",
+    "payment_method": "transferencia",
+    "reference_number": "REF-54321",
+    "notes": "Actualización de pago",
+    "status": "pagado",
+    "payment_type": "servicios",
+    "client_service_id": 1
+}
+
+### Delete a Payment
+DELETE {{baseUrl}}/payments/2
+Content-Type: {{contentType}}
+
+### Get Payments Details
+GET {{baseUrl}}/payments/details/all
+Content-Type: {{contentType}}
+
+### Get Payments by Date Range
+GET {{baseUrl}}/payments/filter/date?startDate=2024-01-01&endDate=2024-12-31
+Content-Type: {{contentType}}
+
+### Get Payments by Status
+GET {{baseUrl}}/payments/status/en proceso
+Content-Type: {{contentType}}
+
+### Get Client Payments
+GET {{baseUrl}}/payments/client/2
+Content-Type: {{contentType}}
+
+### Get Client Total Payments
+GET {{baseUrl}}/payments/client/2/total
+Content-Type: {{contentType}}
+
+### Get Payments by Client Service
+GET {{baseUrl}}/payments/service/1
+Content-Type: {{contentType}}
+
+### Change Payment Status
+
+PATCH {{baseUrl}}/payments/19/status
+Content-Type: {{contentType}}
+
+{
+    "status": "pagado"
+}

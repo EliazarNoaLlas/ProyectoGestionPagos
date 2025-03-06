@@ -1,55 +1,55 @@
 /*
- * File: ClientsInterface.jsx
- * Author: Desarrollador de Interfaz de Clientes
+ * File: ServicesPage.jsx
+ * Author: Desarrollador de Interfaz de Servicios
  * Copyright: 2025, Embedding Minds
  * License: MIT
- * Purpose: Interfaz de gestión de clientes con modos de vista de cuadrícula y lista
+ * Purpose: Interfaz de gestión de servicios con modos de vista de cuadrícula y lista
  * Last Modified: 2024-03-04
  */
 
 import {useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
-import {Search, Plus, Grid, List, Building, Mail, MapPin, User} from 'lucide-react';
-import {getClients, searchClients} from '../services/api';
+import {Search, Plus, Grid, List, Box, DollarSign, FileText} from 'lucide-react';
+import {getServices, searchServices} from '../services/api';
 import {useNavigate} from "react-router-dom";
-import FilterMenu from "../components/filterMenu.jsx";
 import Navbar from "../components/Navbar.jsx";
+import FilterMenu from "../components/filterMenu.jsx";
 
-// Componente principal de la interfaz de clientes
-const ClientsInterface = () => {
+// Componente principal de la interfaz de servicios
+const ServicesInterface = () => {
     // Estados para gestionar la interfaz
     const [viewMode, setViewMode] = useState('kanban');
-    const [clients, setClients] = useState([]);
+    const [services, setServices] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const navigate = useNavigate();
 
-    const handleClick = (clientId) => {
-        navigate(`/clients/${clientId}`);
+    const handleClick = (serviceId) => {
+        navigate(`/services/${serviceId}`);
     };
 
-    // Efecto para cargar clientes al iniciar la interfaz
+    // Efecto para cargar servicios al iniciar la interfaz
     useEffect(() => {
-        const fetchClients = async () => {
+        const fetchServices = async () => {
             try {
-                const data = await getClients();
-                if (!Array.isArray(data)) throw new Error("La respuesta no es una lista de clientes");
-                setClients(data);
+                const data = await getServices();
+                if (!Array.isArray(data)) throw new Error("La respuesta no es una lista de servicios");
+                setServices(data);
             } catch (error) {
-                console.error("Error al cargar clientes:", error.message);
+                console.error("Error al cargar servicios:", error.message);
             }
         };
-        fetchClients();
+        fetchServices();
     }, []);
 
     // Manejar búsqueda en tiempo real
     useEffect(() => {
         const fetchSearchResults = async () => {
             if (searchTerm.trim() === "") {
-                const data = await getClients(); // Si el campo está vacío, recarga todos los clientes
-                setClients(data);
+                const data = await getServices(); // Si el campo está vacío, recarga todos los servicios
+                setServices(data);
             } else {
-                const data = await searchClients(searchTerm);
-                setClients(data);
+                const data = await searchServices(searchTerm);
+                setServices(data);
             }
         };
 
@@ -57,67 +57,52 @@ const ClientsInterface = () => {
         return () => clearTimeout(delaySearch);
     }, [searchTerm]);
 
-    // Componente de tarjeta de cliente
-    const ClientCard = ({client}) => (
+    // Componente de tarjeta de servicio
+    const ServiceCard = ({service}) => (
         <div
             className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-4 mb-4 cursor-pointer"
-            onClick={() => handleClick(client.client_id)}
+            onClick={() => handleClick(service.service_id)}
         >
             {/* Encabezado de la tarjeta */}
             <div className="flex items-start mb-3">
-                {/* Ícono de empresa o usuario */}
+                {/* Ícono de servicio */}
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                    {client.type === 'empresa' ? (
-                        <Building className="w-8 h-8 text-blue-500"/>
-                    ) : (
-                        <User className="w-8 h-8 text-blue-500"/>
-                    )}
+                    <Box className="w-8 h-8 text-blue-500"/>
                 </div>
-                {/* Información principal del cliente */}
+                {/* Información principal del servicio */}
                 <div className="flex-1">
-                    <h3 className="font-semibold text-lg text-gray-800">{client.name}</h3>
-                    <div className="text-sm text-gray-600">
-                        {client.type === 'empresa' ? 'Empresa' : 'Cliente Individual'}
-                    </div>
+                    <h3 className="font-semibold text-lg text-gray-800">{service.name}</h3>
+                    <div className="text-sm text-gray-600">Servicio</div>
                 </div>
             </div>
 
-            {/* Detalles adicionales del cliente */}
+            {/* Detalles adicionales del servicio */}
             <div className="space-y-2 mb-3">
-                {/* Ubicación */}
+                {/* Descripción */}
                 <div className="flex items-center text-sm text-gray-600">
-                    <MapPin className="w-4 h-4 mr-2"/>
-                    {client.city}, {client.country}
+                    <FileText className="w-4 h-4 mr-2"/>
+                    {service.description}
                 </div>
 
-                {/* Correo electrónico */}
+                {/* Precio */}
                 <div className="flex items-center text-sm text-gray-600">
-                    <Mail className="w-4 h-4 mr-2"/>
-                    {client.email}
+                    <DollarSign className="w-4 h-4 mr-2"/>
+                    {new Intl.NumberFormat('es-MX', {
+                        style: 'currency',
+                        currency: 'MXN'
+                    }).format(service.price)}
                 </div>
-            </div>
-
-            {/* Información de creación y actualización */}
-            <div className="flex justify-between pt-3 border-t border-gray-100 text-sm">
-                <div className="text-gray-600">Creado: {new Date(client.created_at).toLocaleDateString()}</div>
-                <div className="text-gray-600">Actualizado: {new Date(client.updated_at).toLocaleDateString()}</div>
             </div>
         </div>
     );
 
-    // Validación de propiedades para ClientCard
-    ClientCard.propTypes = {
-        client: PropTypes.shape({
-            client_id: PropTypes.number.isRequired,
-            type: PropTypes.string.isRequired,
+    // Validación de propiedades para ServiceCard
+    ServiceCard.propTypes = {
+        service: PropTypes.shape({
+            service_id: PropTypes.number.isRequired,
             name: PropTypes.string.isRequired,
-            city: PropTypes.string.isRequired,
-            country: PropTypes.string.isRequired,
-            phone: PropTypes.string.isRequired,
-            email: PropTypes.string.isRequired,
-            is_active: PropTypes.bool.isRequired,
-            created_at: PropTypes.string.isRequired,
-            updated_at: PropTypes.string.isRequired,
+            description: PropTypes.string,
+            price: PropTypes.string.isRequired,
         }).isRequired,
     };
 
@@ -131,9 +116,11 @@ const ClientsInterface = () => {
                 {/* Header */}
                 <div className="bg-white shadow-sm px-6 py-4">
                     <div className="flex justify-between items-center">
-                        <h1 className="text-xl font-semibold text-gray-800">Clientes</h1>
-                        <button onClick={() => navigate("/create-client")}
-                                className="px-4 py-2 bg-purple-600 text-white rounded-md flex items-center hover:bg-purple-700 transition-colors">
+                        <h1 className="text-xl font-semibold text-gray-800">Servicios</h1>
+                        <button
+                            onClick={() => navigate("/create-service")}
+                            className="px-4 py-2 bg-purple-600 text-white rounded-md flex items-center hover:bg-purple-700 transition-colors"
+                        >
                             <Plus className="w-4 h-4 mr-2"/>
                             Nuevo
                         </button>
@@ -147,7 +134,7 @@ const ClientsInterface = () => {
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"/>
                             <input
                                 type="text"
-                                placeholder="Buscar clientes..."
+                                placeholder="Buscar servicios..."
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
                             />
@@ -171,13 +158,13 @@ const ClientsInterface = () => {
                     </div>
                 </div>
 
-                {/* Contenido principal de clientes */}
+                {/* Contenido principal de servicios */}
                 <div className="px-6 py-4">
                     {/* Vista de cuadrícula (Kanban) */}
                     {viewMode === 'kanban' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {clients.map(client => (
-                                <ClientCard key={client.client_id} client={client}/>
+                            {services.map(service => (
+                                <ServiceCard key={service.service_id} service={service}/>
                             ))}
                         </div>
                     )}
@@ -189,27 +176,24 @@ const ClientsInterface = () => {
                                 <thead className="bg-gray-50">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ciudad</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Teléfono</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Correo</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Precio</th>
                                 </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
-                                {clients.map(client => (
+                                {services.map(service => (
                                     <tr
-                                        key={client.client_id}
+                                        key={service.service_id}
                                         className="hover:bg-purple-100 cursor-pointer transition duration-200"
-                                        onClick={() => handleClick(client.client_id)}
+                                        onClick={() => handleClick(service.service_id)}
                                     >
-                                        <td className="px-6 py-4 text-sm text-gray-800">{client.name}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-600">{client.type === 'empresa' ? 'Empresa' : 'Individual'}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-600">{client.city}, {client.country}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-600">{client.phone}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-600">{client.email}</td>
-                                        <td className={`px-6 py-4 text-sm font-medium ${client.is_active ? 'text-green-600' : 'text-red-600'}`}>
-                                            {client.is_active ? 'Activo' : 'Inactivo'}
+                                        <td className="px-6 py-4 text-sm text-gray-800">{service.name}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-600">{service.description}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-600">
+                                            {new Intl.NumberFormat('es-MX', {
+                                                style: 'currency',
+                                                currency: 'MXN'
+                                            }).format(service.price)}
                                         </td>
                                     </tr>
                                 ))}
@@ -223,4 +207,4 @@ const ClientsInterface = () => {
     );
 };
 
-export default ClientsInterface;
+export default ServicesInterface;

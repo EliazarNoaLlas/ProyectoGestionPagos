@@ -1,0 +1,65 @@
+### Base URL Configuration
+@baseUrl = http://localhost:3000/api
+@contentType = application/json
+
+### Get All Client Services
+GET {{baseUrl}}/client/services
+Content-Type: {{contentType}}
+
+### Search clients by name
+GET {{baseUrl}}/client/services/search?name=limpieza
+Content-Type: {{contentType}}
+
+
+### Get Client Service by ID
+GET {{baseUrl}}/client/services/3
+Content-Type: {{contentType}}
+
+### Create a New Client Service
+POST {{baseUrl}}/client/services
+Content-Type: {{contentType}}
+
+{
+    "client_id": 2,
+    "service_id": 3,
+    "amount_due": 1500.00,
+    "due_date": "2024-12-31"
+}
+
+
+### Update an Existing Client Service
+PUT {{baseUrl}}/client/services/3
+Content-Type: {{contentType}}
+
+{
+    "client_id": 2,
+    "service_id": 2,
+    "status": "activo",
+    "amount_due": 2000.00,
+    "due_date": "2025-01-15",
+    "payment_status": "pendiente"
+}
+
+### Delete a Client Service
+DELETE {{baseUrl}}/client/services/3
+Content-Type: {{contentType}}
+
+### Get Client Services by Client ID
+GET {{baseUrl}}/client/2
+Content-Type: {{contentType}}
+
+### Change Client Service Status
+PATCH {{baseUrl}}/client/status/3
+Content-Type: {{contentType}}
+
+{
+    "status": "activo"
+}
+
+### Change Client Service Payment Status
+PATCH {{baseUrl}}/client/payment-status/1
+Content-Type: {{contentType}}
+
+{
+    "payment_status": "pagado"
+}

@@ -1,112 +1,106 @@
+/*
+ * File: ModernMenu.jsx
+ * Author: Eliazar
+ * Copyright: 2025, Embedding Minds
+ * License: MIT
+ * Purpose: Menu de Inicio Mejorado
+ * Last Modified: 2024-03-04
+ */
+
+import {useState} from 'react';
 import {NavLink} from "react-router-dom";
 import {
     Users,
     Calculator,
     CreditCard,
     ShoppingBag,
+    Layers,
     BarChart2,
     Settings,
     HelpCircle,
-    LogOut,
+    LogOut
 } from "lucide-react";
 
-const MenuItem = ({icon: Icon, title, path, notifications = 0}) => (
+const MenuItem = ({icon: Icon, title, path, color}) => (
     <NavLink
         to={path}
-        className={({isActive}) =>
-            `flex items-center p-4 rounded-xl transition-all cursor-pointer group ${
-                isActive ? "bg-blue-100 text-blue-600" : "hover:bg-blue-50"
-            }`
-        }
+        className="flex flex-col items-center justify-center p-4 rounded-xl hover:bg-gray-100 transition-all group"
     >
         <div
-            className="flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-blue-100 to-blue-50 group-hover:from-blue-200 group-hover:to-blue-100">
-            <Icon className="w-6 h-6 text-blue-600"/>
+            className={`
+                w-16 h-16 rounded-2xl mb-2 flex items-center justify-center 
+                bg-gradient-to-br ${color} 
+                group-hover:scale-105 transition-transform
+            `}
+        >
+            <Icon className="w-8 h-8 text-white"/>
         </div>
-        <span className="ml-4 font-medium">{title}</span>
-        {notifications > 0 && (
-            <div
-                className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {notifications}
-            </div>
-        )}
+        <span className="text-sm text-gray-700 font-medium text-center">
+            {title}
+        </span>
     </NavLink>
 );
 
-const ModernMenu = () => {
+const ModernAppDashboard = () => {
+    const [isDarkMode, setIsDarkMode] = useState(false);
+
+    const toggleDarkMode = () => {
+        setIsDarkMode(!isDarkMode);
+    };
+
     return (
-        <div className="min-h-screen bg-gray-50 p-6 flex">
-            {/* Menú Lateral */}
-            <div className="w-72 bg-white rounded-2xl shadow-lg p-6">
+        <div
+            className={`min-h-screen p-6 relative ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50'} transition-colors duration-300`}>
+            <div className="container mx-auto text-center">
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-2xl font-bold text-gray-800">SGPS</h1>
-                    <p className="text-sm text-gray-500">Gestión de Pagos</p>
+                    <h2 className={`text-4xl font-extrabold tracking-wide uppercase ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                        Gestiona tus Pagos
+                    </h2>
+                    <p className={`text-md mt-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+                        Administra tus pagos de manera automática
+                    </p>
                 </div>
-
-                {/* Menú Items */}
-                <div className="space-y-2">
-                    <MenuItem icon={Users} title="Clientes" path="/clients"/>
-                    <MenuItem icon={Calculator} title="Contabilidad" path="/contabilidad"/>
-                    <MenuItem icon={CreditCard} title="Pagos" path="/pagos"/>
-                    <MenuItem icon={ShoppingBag} title="Productos" path="/products"/>
-                    <MenuItem icon={BarChart2} title="Reportes" path="/reports"/>
-                    <MenuItem icon={Settings} title="Configuración" path="/configurations"/>
-                    <MenuItem icon={HelpCircle} title="Ayuda" path="/ayuda"/>
-                </div>
-
-                {/* Cerrar Sesión */}
-                <div className="mt-8">
-                    <NavLink to="/logout"
-                             className="flex items-center p-4 rounded-xl hover:bg-red-50 cursor-pointer group">
-                        <div
-                            className="flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-red-100 to-red-50 group-hover:from-red-200 group-hover:to-red-100">
-                            <LogOut className="w-6 h-6 text-red-600"/>
-                        </div>
-                        <span className="ml-4 text-red-600 font-medium">Cerrar Sesión</span>
-                    </NavLink>
-                </div>
+                <button
+                    onClick={toggleDarkMode}
+                    className={`
+                            p-2 rounded-full 
+                            ${isDarkMode
+                        ? 'bg-gray-700 text-yellow-400 hover:bg-gray-600'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}
+                        `}
+                >
+                    {isDarkMode ? '☀️' : '🌙'}
+                </button>
             </div>
 
-            {/* Área Decorativa */}
-            {/* Área Decorativa */}
-            <div className="flex-1 ml-6 bg-white rounded-2xl shadow-lg p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full -mr-32 -mt-32"/>
-                <div className="absolute bottom-0 left-0 w-48 h-48 bg-green-50 rounded-full -ml-24 -mb-24"/>
+            {/* Cuadrícula de Aplicaciones */}
+            <div className="grid grid-cols-3 md:grid-cols-4 gap-4 mt-8">
+                <MenuItem icon={Users} title="Clientes" path="/clients" color="from-blue-400 to-blue-500"/>
+                <MenuItem icon={Calculator} title="Contabilidad" path="/client-services"
+                          color="from-indigo-400 to-indigo-500"/>
+                <MenuItem icon={CreditCard} title="Pagos" path="/payments" color="from-green-400 to-green-500"/>
+                <MenuItem icon={ShoppingBag} title="Productos" path="/products" color="from-orange-400 to-orange-500"/>
+                <MenuItem icon={Layers} title="Servicios" path="/services" color="from-purple-400 to-purple-500"/>
+                <MenuItem icon={BarChart2} title="Reportes" path="/reports" color="from-amber-400 to-amber-500"/>
+                <MenuItem icon={Settings} title="Configuración" path="/settings"
+                          color="from-gray-400 to-gray-500"/>
+                <MenuItem icon={HelpCircle} title="Ayuda" path="/settings" color="from-red-400 to-red-500"/>
+            </div>
 
-                {/* Contenido Principal */}
-                <div className="relative z-10">
-                    <div className="max-w-md">
-                        <h2 className="text-3xl font-bold text-gray-800 mb-4">
-                            ¡Bienvenido al Sistema de Gestión!
-                        </h2>
-                        <p className="text-gray-600 mb-8">
-                            Gestiona tus pagos y servicios de manera eficiente y segura.
-                        </p>
-                        <div
-                            className="bg-blue-600 text-white px-6 py-3 rounded-lg inline-flex items-center cursor-pointer hover:bg-blue-700 transition-colors">
-                            <CreditCard className="w-5 h-5 mr-2"/>
-                            Iniciar Nueva Transacción
-                        </div>
-                    </div>
-
-                    {/* Ilustración de Caja Registradora */}
+            {/* Cerrar Sesión */}
+            <div className="mt-10 flex justify-center">
+                <NavLink to="/logout" className="flex items-center p-4 rounded-xl hover:bg-red-50 cursor-pointer group">
                     <div
-                        className="absolute top-100 right-8 w-64 h-64 bg-gradient-to-br from-blue-100 to-green-100 rounded-2xl flex items-center justify-center">
-                        <div className="transform -rotate-12">
-                            <div className="w-48 h-32 bg-gray-800 rounded-lg shadow-xl relative">
-                                <div className="absolute top-2 left-4 right-4 h-8 bg-gray-600 rounded"/>
-                                <div
-                                    className="absolute bottom-4 left-4 right-4 h-12 bg-gray-700 rounded flex items-center justify-center">
-                                    <div className="text-green-400 text-xl font-mono">$0.00</div>
-                                </div>
-                            </div>
-                        </div>
+                        className="flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-red-100 to-red-50 group-hover:from-red-200 group-hover:to-red-100">
+                        <LogOut className="w-6 h-6 text-red-600"/>
                     </div>
-                </div>
+                    <span className="ml-4 text-red-600 font-medium hidden md:inline">Cerrar Sesión</span>
+                </NavLink>
             </div>
+
         </div>
     );
 };
 
-export default ModernMenu;
+export default ModernAppDashboard;

@@ -1,5 +1,5 @@
 import AppRouter from "./routes/AppRouter";
-import "./index.css"; // Importar Tailwind
+import "./index.css";
 
 const App = () => {
   return (
